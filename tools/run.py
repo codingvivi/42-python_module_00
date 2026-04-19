@@ -8,7 +8,7 @@ SRC_DIR = ROOT_DIR / "src"
 num: int = int(sys.argv[1])
 ex_dir = SRC_DIR / f"ex{num}"
 
-actions = ["", "Community garden", "5\n3\n"]
+actions = ("", "Community garden", "5\n3\n", "5\n8\n3\n", "75", "4")
 
 subprocess.run(
     ["python3", str(RUNNER_EXT)],
