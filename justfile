@@ -1,0 +1,96 @@
+
+root-dir := justfile_directory()
+
+name := "python_module_00"
+
+
+src-dir := root-dir / "src"
+dist-dir := root-dir / "dist"
+stage-dir := dist-dir / name + "_turnin"
+
+
+_default:
+    @just -l
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# run
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# run the entry script with the given args
+[group('run')]
+run *args:
+    python3 {{src-dir}}/main.py {{args}}
+
+[group('run')]
+run-presets ex:
+    python3 tools/run.py {{ex}}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# dist
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# package a release tarball tagged with the given version
+[group('dist')]
+publish tag msg:
+    just dist {{tag}}
+    git tag {{tag}} -m "{{msg}}"
+    git push origin HEAD:main --tags
+    gh release create {{tag}} {{dist-dir}}/{{name}}_turnin_{{tag}}.tar.gz
+
+
+# checks then stage + tarball
+[group('dist')]
+dist tag="":
+    just checks-dist
+    just stage
+    tar -czf {{dist-dir}}/{{name}}_turnin_{{tag}}.tar.gz -C {{stage-dir}} .
+
+# rsync turnin files
+[group('dist')]
+stage:
+    mkdir -p {{stage-dir}}
+    rsync -vhacP --filter=':- .gitignore' src/ {{stage-dir}}/
+
+
+# type-check + style
+[group('dist')]
+checks-dist:
+    just test-mypy
+    just test-lint
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# test
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# run mypy across src/
+[group('test')]
+test-mypy:
+    mypy {{src-dir}}
+
+# run ruff/flake8 across src/
+[group('test')]
+test-lint:
+    ruff check {{src-dir}}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# clean
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# remove python caches
+[group('clean')]
+clean:
+    find {{src-dir}} -type d -name '__pycache__' -exec rm -rf {} +
+    find {{src-dir}} -type f -name '*.pyc' -delete
+    rm -rf {{root-dir}}/.mypy_cache {{root-dir}}/.ruff_cache 
+
+# clean + remove dist tree
+[group('clean')]
+fclean: clean
+    rm -rf {{dist-dir}}
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# tools
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
