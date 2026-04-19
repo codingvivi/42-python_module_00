@@ -1,4 +1,3 @@
-
 root-dir := justfile_directory()
 
 name := "python_module_00"
@@ -58,21 +57,23 @@ stage:
 checks-dist:
     just test-mypy
     just test-lint
+    @printf '\033[1;32m✓ all checks passed! Ready for submission\n\033[0m\n'
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # test
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
 # run mypy across src/
 [group('test')]
 test-mypy:
-    mypy {{src-dir}}
+    uv run mypy --check-untyped-defs {{src-dir}}
 
 # run ruff/flake8 across src/
 [group('test')]
 test-lint:
-    ruff check {{src-dir}}
+    uv run ruff check {{src-dir}}
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # clean
