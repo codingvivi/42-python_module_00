@@ -1,9 +1,6 @@
 def ft_garden_name():
 
-    prompt: str = "Enter garden name:"
-    print(prompt)
-
-    name: str = input()
+    name: str = input("Enter garden name: ")
     name_output: str = f"Garden: {name}"
     print(name_output)
 

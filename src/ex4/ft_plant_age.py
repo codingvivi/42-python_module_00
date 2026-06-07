@@ -1,8 +1,5 @@
 def ft_plant_age():
-    prompt: str = "Enter plant age in days: "
-    print(prompt)
-
-    usr_in: int = int(input())
+    usr_in: int = int(input("Enter plant age in days: "))
 
     status: str = (
         "Plant is ready to harvest!"

@@ -24,6 +24,11 @@ run *args:
 [group('run')]
 run-presets ex:
     python3 tools/run.py {{ex}}
+    
+[group('run')]
+run-presets-all:
+    #!/usr/bin/env nu
+    for i in 0..7 { python3 tools/run.py $i}
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # dist
@@ -70,10 +75,20 @@ checks-dist:
 test-mypy:
     uv run mypy --check-untyped-defs {{src-dir}}
 
-# run ruff/flake8 across src/
+# run ruff across src/
+[group('test')]
+test-ruff:
+    uv run ruff check {{src-dir}}
+
+# run flake8 across src/
+[group('test')]
+test-flake8:
+    uv run flake8 {{src-dir}}
+
 [group('test')]
 test-lint:
-    uv run ruff check {{src-dir}}
+    just test-ruff
+    just test-flake8
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # clean

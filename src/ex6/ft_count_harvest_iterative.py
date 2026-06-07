@@ -1,6 +1,5 @@
 def ft_count_harvest_iterative():
-    print("Days until harvest")
-    usr_in: int = int(input())
+    usr_in: int = int(input("Days until harvest: "))
 
     for day in range(1, usr_in + 1):
         print(f"Day {day}")
