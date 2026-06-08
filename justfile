@@ -52,7 +52,7 @@ dist tag="":
 
 # rsync turnin files
 [group('dist')]
-stage:
+stage: clean
     mkdir -p {{stage-dir}}
     rsync -vhacP --filter=':- .gitignore' src/ {{stage-dir}}/
 
